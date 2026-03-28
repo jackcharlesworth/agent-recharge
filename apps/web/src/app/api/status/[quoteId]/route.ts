@@ -4,12 +4,13 @@ const LZ_API_BASE = "https://transfer.layerzero-api.com/v1";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { quoteId: string } }
+  { params }: { params: Promise<{ quoteId: string }> }
 ) {
+  const { quoteId } = await params;
   const { searchParams } = new URL(req.url);
   const txHash = searchParams.get("txHash");
 
-  const url = new URL(`${LZ_API_BASE}/status/${params.quoteId}`);
+  const url = new URL(`${LZ_API_BASE}/status/${quoteId}`);
   if (txHash) url.searchParams.set("txHash", txHash);
 
   const res = await fetch(url.toString(), {
