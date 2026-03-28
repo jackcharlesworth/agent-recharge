@@ -1,0 +1,51 @@
+# Agent Recharge
+
+Agent Recharge lets you fund an AI agent wallet from any EVM chain using LayerZero cross-chain infrastructure. Anyone can send tokens to an agent — the payer chooses their source chain and token, the destination is fixed.
+
+## How to generate a payment link
+
+Use the `agent-recharge` npm package:
+
+```bash
+npm install agent-recharge
+```
+
+```typescript
+import { recharge, USDC } from "agent-recharge";
+
+const url = recharge({
+  toChain: "base",            // LayerZero chain key (string)
+  toToken: USDC["base"],      // Token contract address on destination chain
+  toAddress: "0xYourWallet",  // Agent wallet address
+  agentName: "TradingBot",    // Optional: shown in payment UI
+  toAmount: 50,               // Optional: pre-fill amount (human-readable)
+  minAmountUSD: 10,           // Optional: minimum USD value
+});
+// Returns: https://agent-recharge.vercel.app/pay?toChain=base&toToken=0x833...&toAddress=0x...
+```
+
+## URL parameters
+
+| Parameter     | Required | Description                                         |
+|---------------|----------|-----------------------------------------------------|
+| toChain       | yes      | LZ chain key, e.g. "base", "arbitrum", "ethereum"   |
+| toToken       | yes      | Token contract address on the destination chain     |
+| toAddress     | yes      | Wallet address to receive funds                     |
+| toAmount      | no       | Pre-filled amount (human-readable, e.g. "50")       |
+| agentName     | no       | Display name shown in the UI                        |
+| agentLogo     | no       | URL of an image shown in the UI                     |
+| minAmountUSD  | no       | Minimum transfer value in USD                       |
+
+## Supported chains (EVM)
+
+ethereum, base, arbitrum, optimism, polygon, bsc, avalanche, linea, scroll, zksync-era, mantle, and 100+ more via LayerZero.
+
+## Common token addresses
+
+USDC on Base: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+USDC on Arbitrum: 0xaf88d065e77c8cC2239327C5EDb3A432268e5831
+USDC on Ethereum: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+
+## Example link
+
+https://agent-recharge.vercel.app/pay?toChain=base&toToken=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&toAddress=0xYourWallet&agentName=TradingBot&toAmount=50
