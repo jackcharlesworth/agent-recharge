@@ -16,7 +16,7 @@ export interface RechargeParams {
 }
 
 // TODO: Update this to your deployed Vercel URL before publishing
-const BASE_URL = "https://agent-recharge.vercel.app/pay";
+const BASE_URL = "https://agent-recharge-web.vercel.app/pay";
 
 /**
  * Build a payment URL that lets anyone fund an AI agent wallet across any chain.
