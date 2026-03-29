@@ -102,8 +102,14 @@ function TokenAvatar({ symbol, logoUrl, size = 24 }: { symbol: string; logoUrl?:
 }
 
 function sortAndFilterTokens(tokens: LZToken[]): LZToken[] {
+  const seen = new Set<string>();
   return tokens
-    .filter((t) => t.isSupported && ALLOWED_SRC_SYMBOLS.has(t.symbol))
+    .filter((t) => {
+      if (!t.isSupported || !ALLOWED_SRC_SYMBOLS.has(t.symbol)) return false;
+      if (seen.has(t.symbol)) return false;
+      seen.add(t.symbol);
+      return true;
+    })
     .sort((a, b) => {
       const ai = PRIORITY_SYMBOLS.indexOf(a.symbol);
       const bi = PRIORITY_SYMBOLS.indexOf(b.symbol);
@@ -333,7 +339,7 @@ export function PayUI({ params }: { params: PayParams }) {
         {/* Page header */}
         <div className="mb-5">
           <h1 className="text-[28px] font-normal text-[#f5f5f5] leading-[32px] tracking-[-0.56px]">
-            {params.agentName ?? "Agent Recharge"}
+            {params.agentName ?? "Agent Wallet"}
           </h1>
           <p className="text-[14px] text-[#797979] mt-1 leading-[20px]">
             Add {dstTokenSymbol} to {params.agentName ? `${params.agentName}'s` : "this agent's"} wallet on {dstChainLabel}
@@ -413,7 +419,7 @@ export function PayUI({ params }: { params: PayParams }) {
                     ? "—"
                     : "$0.00"}
                 </p>
-                <p className="text-[12px] text-[#5c5c5c] mt-1">Total balance</p>
+                <p className="text-[12px] text-[#5c5c5c] mt-1">Total Agent Balance</p>
               </div>
             )}
 
