@@ -342,7 +342,7 @@ export function PayUI({ params }: { params: PayParams }) {
             {params.agentName ?? "Agent Wallet"}
           </h1>
           <p className="text-[14px] text-[#797979] mt-1 leading-[20px]">
-            Add {dstTokenSymbol} to {params.agentName ?? "Agent Wallet"} on {dstChainLabel}
+            Add {dstTokenSymbol} to Agent Wallet on {dstChainLabel}
           </p>
         </div>
 
