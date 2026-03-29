@@ -18,7 +18,17 @@ import { LZ_CHAIN_KEY_TO_ID, CHAIN_ID_TO_LZ_KEY } from "@/lib/wagmi";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
-const PRIORITY_SYMBOLS = ["USDC", "USDT", "WETH", "ETH", "WBTC"];
+const PRIORITY_SYMBOLS = ["ETH", "USDC", "USDT", "USDT0", "PYUSD", "DAI", "USDS", "USDC.e", "USDT.e"];
+
+// Tokens shown in the source picker — native ETH + stablecoins only
+const ALLOWED_SRC_SYMBOLS = new Set([
+  "ETH",
+  "USDC", "USDC.e",
+  "USDT", "USDT0", "USDT.e",
+  "PYUSD",
+  "DAI", "USDS",
+  "FRAX", "LUSD", "CRVUSD", "GHO",
+]);
 
 const CHAIN_NAMES: Record<string, string> = {
   ethereum: "Ethereum",
@@ -93,7 +103,7 @@ function TokenAvatar({ symbol, logoUrl, size = 24 }: { symbol: string; logoUrl?:
 
 function sortAndFilterTokens(tokens: LZToken[]): LZToken[] {
   return tokens
-    .filter((t) => t.isSupported)
+    .filter((t) => t.isSupported && ALLOWED_SRC_SYMBOLS.has(t.symbol))
     .sort((a, b) => {
       const ai = PRIORITY_SYMBOLS.indexOf(a.symbol);
       const bi = PRIORITY_SYMBOLS.indexOf(b.symbol);
