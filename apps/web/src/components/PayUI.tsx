@@ -53,6 +53,44 @@ function getDstTokenSymbol(address: string): string {
   return KNOWN_TOKEN_SYMBOLS[address.toLowerCase()] ?? "Token";
 }
 
+const TOKEN_LOGOS: Record<string, string> = {
+  ETH:  "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+  WETH: "https://assets.coingecko.com/coins/images/2518/small/weth.png",
+  USDC: "https://assets.coingecko.com/coins/images/6319/small/usdc.png",
+  USDT: "https://assets.coingecko.com/coins/images/325/small/tether.png",
+  WBTC: "https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png",
+  POL:  "https://assets.coingecko.com/coins/images/32440/small/polygon.png",
+  BNB:  "https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png",
+  AVAX: "https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png",
+};
+
+function TokenAvatar({ symbol, logoUrl, size = 24 }: { symbol: string; logoUrl?: string; size?: number }) {
+  const src = logoUrl || TOKEN_LOGOS[symbol.toUpperCase()];
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt={symbol}
+        width={size}
+        height={size}
+        className="rounded-full flex-shrink-0"
+        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+        unoptimized
+      />
+    );
+  }
+  return (
+    <div
+      style={{ width: size, height: size }}
+      className="rounded-full bg-brand-8p border border-brand-25p flex items-center justify-center flex-shrink-0"
+    >
+      <span className="text-[9px] font-mono text-brand uppercase leading-none">
+        {symbol.slice(0, 2)}
+      </span>
+    </div>
+  );
+}
+
 function sortAndFilterTokens(tokens: LZToken[]): LZToken[] {
   const priority = tokens.filter(
     (t) => t.isSupported && PRIORITY_SYMBOLS.includes(t.symbol)
@@ -394,11 +432,7 @@ export function PayUI({ params }: { params: PayParams }) {
                   {balances.map((b) => (
                     <div key={b.symbol} className="flex justify-between items-center">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-full bg-brand-8p border border-brand-25p flex items-center justify-center flex-shrink-0">
-                          <span className="text-[9px] font-mono text-brand uppercase leading-none">
-                            {b.symbol.slice(0, 2)}
-                          </span>
-                        </div>
+                        <TokenAvatar symbol={b.symbol} size={24} />
                         <span className="text-[13px] text-[#a3a3a3]">{b.symbol}</span>
                       </div>
                       <span className="text-[13px] font-mono text-[#f5f5f5]">
@@ -507,11 +541,10 @@ export function PayUI({ params }: { params: PayParams }) {
                 <p className="text-[11px] font-mono uppercase tracking-[0.5px] text-[#5c5c5c] mb-2">Send</p>
                 <div className="bg-[#1c1c1c] border border-[#2b2b2b] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2b2b2b] flex items-center justify-center flex-shrink-0">
-                      <span className="text-[11px] font-mono text-[#797979] leading-none">
-                        {selectedToken?.symbol.slice(0, 2) ?? "—"}
-                      </span>
-                    </div>
+                    {selectedToken
+                      ? <TokenAvatar symbol={selectedToken.symbol} logoUrl={selectedToken.logoUrl} size={32} />
+                      : <div className="w-8 h-8 rounded-full bg-[#2b2b2b] flex-shrink-0" />
+                    }
                     <input
                       type="number"
                       min="0"
