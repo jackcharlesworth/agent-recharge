@@ -342,7 +342,7 @@ export function PayUI({ params }: { params: PayParams }) {
             {params.agentName ?? "Agent Wallet"}
           </h1>
           <p className="text-[14px] text-[#797979] mt-1 leading-[20px]">
-            Add {dstTokenSymbol} to {params.agentName ? `${params.agentName}'s` : "this agent's"} wallet on {dstChainLabel}
+            Add {dstTokenSymbol} to {params.agentName ?? "Agent Wallet"} on {dstChainLabel}
           </p>
         </div>
 
@@ -689,7 +689,7 @@ export function PayUI({ params }: { params: PayParams }) {
         {/* Footer */}
         <div className="mt-4 pt-4 border-t border-[#2b2b2b] flex items-center justify-between">
           <span className="text-[11px] font-mono uppercase tracking-[0.5px] text-[#5c5c5c]">
-            Agent Recharge
+            Agent Wallet
           </span>
           <a
             href="https://layerzero.network"

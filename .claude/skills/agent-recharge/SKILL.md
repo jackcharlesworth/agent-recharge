@@ -24,7 +24,7 @@ const url = recharge({
   toChain: "base",
   toToken: USDC["base"],
   toAddress: "0xF3F714bb0037D5A6ea806009bACA474E039ccA06",
-  agentName: "Agent Recharge",
+  agentName: "Agent Wallet",
 });
 ```
 

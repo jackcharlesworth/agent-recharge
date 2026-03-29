@@ -18,7 +18,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Agent Recharge",
+  title: "Agent Wallet",
   description: "Fund AI agent wallets across any chain with LayerZero",
 };
 

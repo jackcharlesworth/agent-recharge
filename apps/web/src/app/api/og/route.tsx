@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
             textTransform: "uppercase",
           }}
         >
-          Agent Recharge
+          Agent Wallet
         </p>
 
         <h1
