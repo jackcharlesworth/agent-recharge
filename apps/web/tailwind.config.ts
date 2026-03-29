@@ -5,10 +5,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // LayerZero purple (primary accent)
         brand: {
-          DEFAULT: "#7B5CF0",
-          dark: "#5A3FD4",
+          DEFAULT: "#a77dff",
+          dark: "#8b5cf6",
+          "8p": "#16131d",
+          "12p": "#1d1828",
+          "25p": "#312647",
         },
+      },
+      fontFamily: {
+        sans: ["var(--font-roboto)", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-roboto-mono)", "Consolas", "monospace"],
       },
     },
   },

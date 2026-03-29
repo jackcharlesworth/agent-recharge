@@ -117,6 +117,12 @@ export interface StatusResponse {
   }>;
 }
 
+export interface WalletBalance {
+  symbol: string;
+  amount: number;
+  usdValue: number | null;
+}
+
 export interface PayParams {
   toChain: string;
   toToken: string;
