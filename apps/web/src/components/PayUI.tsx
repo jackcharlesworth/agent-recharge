@@ -136,6 +136,7 @@ export function PayUI({ params }: { params: PayParams }) {
   const [balances, setBalances] = useState<WalletBalance[]>([]);
   const [totalUsd, setTotalUsd] = useState<number | null>(null);
   const [balancesLoading, setBalancesLoading] = useState(true);
+  const [payerBalanceSymbols, setPayerBalanceSymbols] = useState<Set<string>>(new Set());
 
   const srcChainKey = chainId ? CHAIN_ID_TO_LZ_KEY[chainId] : undefined;
   const srcChainName = srcChainKey ? (CHAIN_NAMES[srcChainKey] ?? srcChainKey) : null;
@@ -162,6 +163,18 @@ export function PayUI({ params }: { params: PayParams }) {
       .catch(() => {/* non-critical */})
       .finally(() => setBalancesLoading(false));
   }, [params.toAddress, params.toChain, isZeroAddress]);
+
+  // Fetch payer wallet balances to filter the source token picker
+  useEffect(() => {
+    if (!address || !srcChainKey) return;
+    fetch(`/api/balances?address=${address}&chainKey=${srcChainKey}`)
+      .then((r) => r.json())
+      .then((data: { balances?: WalletBalance[] }) => {
+        const symbols = new Set((data.balances ?? []).map((b) => b.symbol.toUpperCase()));
+        setPayerBalanceSymbols(symbols);
+      })
+      .catch(() => {/* non-critical */});
+  }, [address, srcChainKey]);
 
   // Fetch source tokens when connected chain changes
   useEffect(() => {
@@ -324,7 +337,7 @@ export function PayUI({ params }: { params: PayParams }) {
         {/* Page header */}
         <div className="mb-5">
           <h1 className="text-[28px] font-normal text-[#f5f5f5] leading-[32px] tracking-[-0.56px]">
-            {params.agentName ? `Feed ${params.agentName}` : "Feed Your Agent"}
+            {params.agentName ?? "Agent Recharge"}
           </h1>
           <p className="text-[14px] text-[#797979] mt-1 leading-[20px]">
             Add {dstTokenSymbol} to {params.agentName ? `${params.agentName}'s` : "this agent's"} wallet on {dstChainLabel}
@@ -449,12 +462,11 @@ export function PayUI({ params }: { params: PayParams }) {
           <div className="bg-[#171717] p-6 space-y-4">
 
             {/* Panel header */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-[16px] font-normal text-[#f5f5f5]">Exchange</h2>
-              {address && (
+            {address && (
+              <div className="flex justify-end">
                 <ConnectButton showBalance={false} accountStatus="address" chainStatus="none" />
-              )}
-            </div>
+              </div>
+            )}
 
             {/* FROM */}
             <div>
@@ -491,10 +503,12 @@ export function PayUI({ params }: { params: PayParams }) {
                         <option value="" disabled className="bg-[#1c1c1c]">
                           Select token
                         </option>
-                        {srcTokens.map((t) => (
+                        {(payerBalanceSymbols.size > 0
+                          ? srcTokens.filter((t) => payerBalanceSymbols.has(t.symbol.toUpperCase()))
+                          : srcTokens
+                        ).map((t) => (
                           <option key={t.address} value={t.address} className="bg-[#1c1c1c]">
-                            {t.symbol}
-                            {t.price?.usd ? ` — $${t.price.usd.toFixed(2)}` : ""}
+                            {t.name} ({t.symbol})
                           </option>
                         ))}
                       </select>
@@ -517,11 +531,7 @@ export function PayUI({ params }: { params: PayParams }) {
             <div>
               <p className="text-[11px] font-mono uppercase tracking-[0.5px] text-[#5c5c5c] mb-2">To</p>
               <div className="bg-[#1c1c1c] border border-[#2b2b2b] p-4 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-brand-8p border border-brand-25p flex items-center justify-center flex-shrink-0">
-                  <span className="text-[11px] font-mono text-brand leading-none">
-                    {dstTokenSymbol.slice(0, 2)}
-                  </span>
-                </div>
+                <TokenAvatar symbol={dstTokenSymbol} size={32} />
                 <div>
                   <p className="text-[14px] text-[#f5f5f5] leading-[20px]">{dstTokenSymbol}</p>
                   <p className="text-[12px] text-[#797979]">{dstChainLabel}</p>
@@ -590,9 +600,7 @@ export function PayUI({ params }: { params: PayParams }) {
                     <span className="text-[#5c5c5c] text-sm">⚡</span>
                   </div>
                   <div>
-                    <p className="text-[14px] text-[#f5f5f5] leading-[20px]">
-                      {params.agentName ?? "AI Agent"}
-                    </p>
+                    <p className="text-[14px] text-[#f5f5f5] leading-[20px]">Agent Wallet</p>
                     <p className="text-[12px] font-mono text-[#797979]">{shortAddress}</p>
                   </div>
                 </div>
@@ -607,7 +615,7 @@ export function PayUI({ params }: { params: PayParams }) {
                   <span className="text-[12px] text-[#f5f5f5]">{fmtUsd(quote.dstAmountUsd)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[12px] text-[#797979]">Bridge fee</span>
+                  <span className="text-[12px] text-[#797979]">Fee</span>
                   <span className="text-[12px] text-[#a3a3a3]">{fmtUsd(quote.feeUsd)}</span>
                 </div>
                 <div className="flex justify-between">
@@ -616,6 +624,12 @@ export function PayUI({ params }: { params: PayParams }) {
                     {fmtDuration(quote.duration.estimated)}
                   </span>
                 </div>
+                {quote.routeSteps[0]?.description && (
+                  <div className="flex justify-between pt-1 border-t border-brand-25p">
+                    <span className="text-[12px] text-[#797979]">Route</span>
+                    <span className="text-[12px] text-[#a3a3a3]">{quote.routeSteps[0].description}</span>
+                  </div>
+                )}
               </div>
             )}
 
