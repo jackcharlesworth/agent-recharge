@@ -92,17 +92,16 @@ function TokenAvatar({ symbol, logoUrl, size = 24 }: { symbol: string; logoUrl?:
 }
 
 function sortAndFilterTokens(tokens: LZToken[]): LZToken[] {
-  const priority = tokens.filter(
-    (t) => t.isSupported && PRIORITY_SYMBOLS.includes(t.symbol)
-  );
-  return [...priority].sort((a, b) => {
-    const ai = PRIORITY_SYMBOLS.indexOf(a.symbol);
-    const bi = PRIORITY_SYMBOLS.indexOf(b.symbol);
-    if (ai !== -1 && bi !== -1) return ai - bi;
-    if (ai !== -1) return -1;
-    if (bi !== -1) return 1;
-    return a.symbol.localeCompare(b.symbol);
-  });
+  return tokens
+    .filter((t) => t.isSupported)
+    .sort((a, b) => {
+      const ai = PRIORITY_SYMBOLS.indexOf(a.symbol);
+      const bi = PRIORITY_SYMBOLS.indexOf(b.symbol);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.symbol.localeCompare(b.symbol);
+    });
 }
 
 type Step =
@@ -136,7 +135,6 @@ export function PayUI({ params }: { params: PayParams }) {
   const [balances, setBalances] = useState<WalletBalance[]>([]);
   const [totalUsd, setTotalUsd] = useState<number | null>(null);
   const [balancesLoading, setBalancesLoading] = useState(true);
-  const [payerBalanceSymbols, setPayerBalanceSymbols] = useState<Set<string>>(new Set());
 
   const srcChainKey = chainId ? CHAIN_ID_TO_LZ_KEY[chainId] : undefined;
   const srcChainName = srcChainKey ? (CHAIN_NAMES[srcChainKey] ?? srcChainKey) : null;
@@ -163,18 +161,6 @@ export function PayUI({ params }: { params: PayParams }) {
       .catch(() => {/* non-critical */})
       .finally(() => setBalancesLoading(false));
   }, [params.toAddress, params.toChain, isZeroAddress]);
-
-  // Fetch payer wallet balances to filter the source token picker
-  useEffect(() => {
-    if (!address || !srcChainKey) return;
-    fetch(`/api/balances?address=${address}&chainKey=${srcChainKey}`)
-      .then((r) => r.json())
-      .then((data: { balances?: WalletBalance[] }) => {
-        const symbols = new Set((data.balances ?? []).map((b) => b.symbol.toUpperCase()));
-        setPayerBalanceSymbols(symbols);
-      })
-      .catch(() => {/* non-critical */});
-  }, [address, srcChainKey]);
 
   // Fetch source tokens when connected chain changes
   useEffect(() => {
@@ -503,10 +489,7 @@ export function PayUI({ params }: { params: PayParams }) {
                         <option value="" disabled className="bg-[#1c1c1c]">
                           Select token
                         </option>
-                        {(payerBalanceSymbols.size > 0
-                          ? srcTokens.filter((t) => payerBalanceSymbols.has(t.symbol.toUpperCase()))
-                          : srcTokens
-                        ).map((t) => (
+                        {srcTokens.map((t) => (
                           <option key={t.address} value={t.address} className="bg-[#1c1c1c]">
                             {t.name} ({t.symbol})
                           </option>
